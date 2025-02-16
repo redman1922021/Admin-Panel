@@ -11,6 +11,7 @@ import MainLayout from "./components/provider/MainLayout.tsx";
 import PrivateRoute from "./components/provider/PrivateRoute.tsx";
 import {AuthProvider} from "./components/provider/AuthProvider.tsx";
 import AuthLayout from "./components/provider/AuthLayout.tsx";
+import Error from "./components/Error/Error.tsx";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,9 @@ const Root: React.FC = () => {
                             <Route element={<AuthLayout />}>
                                 <Route path="/registration" element={<RegistrationForm />} />
                                 <Route path="/login" element={<LoginForm />} />
+                            </Route>
+                            <Route>
+                                <Route path="/*" element={<Error />} />
                             </Route>
                         </Routes>
                     </Router>
