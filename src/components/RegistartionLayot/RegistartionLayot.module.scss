@@ -1,0 +1,144 @@
+@import '../../assets/scss/variable';
+
+.registation {
+  border-radius: 34px;
+  background-color: $white;
+  max-width: 192rem;
+  padding: 1rem;
+  width: 100%;
+  height: fit-content;
+}
+
+.registationWrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+.registationLeft {
+  background-color: $background-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 110.9rem;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 34px 0 0 34px;
+
+
+  &:after {
+    content: url('../../../public/top-left-planet.svg');
+    position: absolute;
+    top: -6rem;
+    left: -6rem;
+  }
+}
+
+.registationList {
+  display: flex;
+  flex-direction: column;
+}
+
+.registationTitle {
+  color: $purple-color;
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 2.4rem;
+  margin-top: 2rem;
+}
+
+.registationText {
+  color: $purple-color;
+  font-weight: 600;
+  font-size: 2.5rem;
+  line-height: 3.4rem;
+}
+
+.wrapperForm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 81.1rem;
+}
+
+.wrapperFormList {
+  max-width: 42rem;
+  width: 100%;
+}
+
+.wrapperFormListLogo {
+  width: 7.2rem;
+  height: 7.2rem;
+  margin-bottom: 3.6rem;
+}
+
+.links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.text {
+  color: $grey;
+  font-size: 1.8rem;
+  line-height: 2.4rem;
+  font-weight: 400;
+  margin-right: 1rem;
+}
+
+.textLink {
+  color: $purple-color;
+  font-size: 1.8rem;
+  line-height: 2.4rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.topTitle {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  margin-bottom: 3.6rem;
+}
+
+.loginTitle {
+  color: $dark-grey;
+  font-size: 3.6rem;
+  line-height: 1.9rem;
+  font-weight: 700;
+}
+
+.loginText {
+  color: $dark-grey;
+  font-size: 1.6rem;
+  line-height: 2.1rem;
+  font-weight: 400;
+}
+
+.button {
+  color: $white;
+  background-color: $purple-color;
+  border-radius: 6px;
+  padding: 1.2rem 0;
+  width: 100%;
+  text-align: center;
+}
+
+.formInput {
+  width: 100%;
+  margin-right: 0;
+  margin-bottom: 2rem;
+}
+
+.form {
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+}
+
+.buttonsForm {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}

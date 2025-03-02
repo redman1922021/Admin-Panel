@@ -1,0 +1,44 @@
+@import '../../assets/scss/variable';
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 1rem;
+  border-bottom: 1px solid $inactive-color;
+}
+
+.wrapperSearch {
+  display: flex;
+  gap: 1.5rem;
+  align-content: center;
+}
+
+.search {
+  font-size: 2rem;
+  padding: 0 1rem;
+  border-radius: .8rem;
+}
+
+.error {
+  color: $danger-color;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.buttonHeader {
+  background-color: $primary-color;
+  border-color: transparent;
+  padding: .5rem;
+  border-radius: .8rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+
+  &:active {
+    opacity: .8;
+  }
+
+  &:hover {
+    color: white;
+  }
+}

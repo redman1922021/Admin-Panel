@@ -1,0 +1,71 @@
+@import '../../assets/scss/variable';
+
+.listItem {
+  width: 100%;
+  background-color: $white;
+  list-style: none;
+  padding: 1rem;
+  box-sizing: border-box;
+  border-radius: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+
+  span {
+    font-size: 1.5rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit, .delete, .save, .cancel {
+  border-color: transparent;
+  padding: 0.5rem;
+  border-radius: 0.8rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s, opacity 0.2s;
+}
+
+.edit {
+  background-color: $primary-color;
+
+  &:hover {
+    color: white;
+  }
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.delete {
+  background-color: $danger-color;
+
+  &:hover {
+    color: white;
+  }
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.buttonsForm {
+  display: flex;
+  gap: 0.5rem;
+}
