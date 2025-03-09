@@ -1,10 +1,11 @@
-import {Table, Input, Button, Space, Tag, Popconfirm, message, Select} from "antd";
+import {Table, Input, Button, Space, Tag, Popconfirm, Select} from "antd";
 import {useState} from "react";
 import {useUsers, useDeleteUser, useBlockUser, useUnlockUser, useUpdateUserRights} from "../../api/api";
 import {SearchOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import {Roles, User} from "../../types/types.ts";
 import type {TableProps} from "antd";
+import {AxiosError} from "axios";
 
 const AdminPage: React.FC = () => {
     const [search, setSearch] = useState<string>("");
@@ -12,7 +13,7 @@ const AdminPage: React.FC = () => {
     const [sortOrder, setSortOrder] = useState<"asc" | "desc" | undefined>(undefined);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [pageSize, setPageSize] = useState<number>(20);
-    const [filterStatus, setFilterStatus] = useState<null | boolean>(null);
+    const [filterStatus, setFilterStatus] = useState<boolean | undefined>(undefined);
 
     const offset = currentPage - 1;
     const {data, isLoading, isError, error, refetch} = useUsers({
@@ -77,13 +78,13 @@ const AdminPage: React.FC = () => {
                 <Space>
                     <Button onClick={() => navigate(`/admin/users/${record.id}`)}>Перейти к профилю</Button>
                     {record.isBlocked ? (
-                        <Button onClick={() => unlockUser.mutateAsync(record.id).then(refetch)}>Разблокировать</Button>
+                        <Button onClick={() => unlockUser.mutateAsync(record.id).then(() => refetch())}>Разблокировать</Button>
                     ) : (
                         <Button danger
-                                onClick={() => blockUser.mutateAsync(record.id).then(refetch)}>Заблокировать</Button>
+                                onClick={() => blockUser.mutateAsync(record.id).then(() => refetch())}>Заблокировать</Button>
                     )}
                     <Popconfirm title="Удалить пользователя?"
-                                onConfirm={() => deleteUser.mutateAsync(record.id).then(refetch)}>
+                                onConfirm={() => deleteUser.mutateAsync(record.id).then(() => refetch())}>
                         <Button type="primary" danger>Удалить</Button>
                     </Popconfirm>
                     <Popconfirm
@@ -92,7 +93,7 @@ const AdminPage: React.FC = () => {
                             id: record.id,
                             field: "roles",
                             value: record.roles?.includes(Roles.ADMIN) ? Roles.USER : Roles.ADMIN
-                        }).then(refetch)}
+                        }).then(() => refetch())}
                     >
                         <Button danger={record.roles?.includes(Roles.ADMIN)}>
                             {record.roles?.includes(Roles.ADMIN) ? "Забрать роль админа" : "Дать роль админа"}
@@ -103,14 +104,14 @@ const AdminPage: React.FC = () => {
         },
     ];
 
-    if (isError && (error as any)?.response?.status === 403) {
+    if (isError && (error as AxiosError)?.response?.status === 403) {
         return (
             <h2 style={{color: "red", textAlign: "center", margin: "2rem 0 0 2rem"}}>
                 Смотреть могут только админы, куда мы лезем)
             </h2>
         );
     }
-    if (isError && (error as any)?.response?.status === 401) {
+    if (isError && (error as AxiosError)?.response?.status === 401) {
         return (
             <h2 style={{color: "red", textAlign: "center", margin: "2rem 0 0 2rem"}}>
                 Токен протух
@@ -125,7 +126,7 @@ const AdminPage: React.FC = () => {
                 <Input prefix={<SearchOutlined/>} placeholder="Поиск..." onChange={(e) => setSearch(e.target.value)}
                        style={{width: 300}}/>
                 <Select value={filterStatus === null ? "all" : filterStatus ? "blocked" : "active"}
-                        onChange={(value) => setFilterStatus(value === "all" ? null : value === "blocked")}>
+                        onChange={(value) => setFilterStatus(value === "all" ? undefined : value === "blocked")}>
                     <Select.Option value="all">Все пользователи</Select.Option>
                     <Select.Option value="blocked">Только заблокированные</Select.Option>
                     <Select.Option value="active">Только активные</Select.Option>
