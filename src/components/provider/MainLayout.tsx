@@ -12,6 +12,7 @@ const MainLayout: React.FC = () => {
                 <ul>
                     <li><Link to="/">Список Задач</Link></li>
                     <li><Link to="/profile">Профиль</Link></li>
+                    <li><Link to="/admin">Админка</Link></li>
                     {isAuthenticated ? (
                         <LogoutButton />
                     ) : (

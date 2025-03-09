@@ -6,7 +6,7 @@ import {
     MetaResponse,
     UserRegistration,
     AuthData,
-    Token, ProfileRequest, Profile,
+    Token, ProfileRequest, Profile, UserFilters, User, UserRequest,
 } from "../types/types.ts";
 
 const BASE_URL = "https://easydev.club/api/v1";
@@ -23,6 +23,11 @@ const authApi = axios.create({
 
 const userApi = axios.create({
     baseURL: `${BASE_URL}/user`,
+    headers: { "Content-Type": "application/json" },
+});
+
+const adminApi = axios.create({
+    baseURL: `${BASE_URL}/admin`,
     headers: { "Content-Type": "application/json" },
 });
 
@@ -86,6 +91,20 @@ userApi.interceptors.request.use(async (config) => {
     return config;
 });
 
+adminApi.interceptors.request.use(async (config) => {
+    let token = localStorage.getItem("accessToken");
+
+    if (!token) {
+        token = await refreshAccessToken();
+    }
+
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+});
+
 userApi.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -119,6 +138,36 @@ export const updateTodo = async (id: number, newTitle: string, isDone: boolean):
 
 export const registerUser = async (data: UserRegistration): Promise<void> => {
     await authApi.post("/signup", data);
+};
+
+export const fetchUsers = async (filters?: UserFilters): Promise<MetaResponse<User>> => {
+    const response = await adminApi.get<MetaResponse<User>>("/users", { params: filters });
+    return response.data;
+};
+
+export const fetchUserById = async (id: number): Promise<User> => {
+    const response = await adminApi.get<User>(`/users/${id}`);
+    return response.data;
+};
+
+export const updateUser = async (id: number, data: UserRequest): Promise<void> => {
+    await adminApi.put(`/users/${id}`, data);
+};
+
+export const deleteUser = async (id: number): Promise<void> => {
+    await adminApi.delete(`/users/${id}`);
+};
+
+export const blockUser = async (id: number): Promise<void> => {
+    await adminApi.post(`/users/${id}/block`);
+};
+
+export const updateUserRights = async (id: number, field: string, value: string): Promise<void> => {
+    await adminApi.post(`/users/${id}/rights`, { field, value });
+};
+
+export const unlockUser = async (id: number): Promise<void> => {
+    await adminApi.post(`/users/${id}/unlock`);
 };
 
 export const loginUser = async (data: AuthData): Promise<Token> => {
@@ -204,5 +253,49 @@ export const useUpdateProfile = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["profile"] });
         },
+    });
+};
+
+export const useUsers = (filters?: UserFilters) => {
+    return useQuery({
+        queryKey: ["users", filters],
+        queryFn: () => fetchUsers(filters),
+    });
+};
+
+export const useUserById = (id: number) => {
+    return useQuery({
+        queryKey: ["user", id],
+        queryFn: () => fetchUserById(id),
+    });
+};
+
+export const useUpdateUser = () => {
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: UserRequest }) => updateUser(id, data),
+    });
+};
+
+export const useDeleteUser = () => {
+    return useMutation({
+        mutationFn: (id: number) => deleteUser(id),
+    });
+};
+
+export const useBlockUser = () => {
+    return useMutation({
+        mutationFn: (id: number) => blockUser(id),
+    });
+};
+
+export const useUpdateUserRights = () => {
+    return useMutation({
+        mutationFn: ({ id, field, value }: { id: number; field: string; value: string }) => updateUserRights(id, field, value),
+    });
+};
+
+export const useUnlockUser = () => {
+    return useMutation({
+        mutationFn: (id: number) => unlockUser(id),
     });
 };

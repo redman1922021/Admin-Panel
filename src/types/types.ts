@@ -11,11 +11,13 @@ export interface TodoInfo {
     inWork: number;
 }
 
-export interface MetaResponse<T, N> {
+export interface MetaResponse<T, N = undefined> {
     data: T[];
     info?: N;
     meta: {
         totalAmount: number;
+        sortBy?: string;
+        sortOrder?: 'asc' | 'desc';
     };
 }
 
@@ -57,4 +59,35 @@ export interface ProfileRequest {
 export interface Token {
     accessToken: string;
     refreshToken: string;
+}
+
+export interface UserFilters {
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    isBlocked?: boolean;
+    limit?: number;
+    offset?: number;
+}
+
+export interface User {
+    id: number;
+    username: string;
+    email: string;
+    date: string;
+    isBlocked: boolean;
+    roles: Roles[];
+    phoneNumber: string;
+}
+
+export interface UserRequest {
+    username?: string;
+    email?: string;
+    phoneNumber?: string;
+}
+
+export enum Roles {
+    ADMIN = "ADMIN",
+    MODERATOR = "MODERATOR",
+    USER = "USER"
 }
