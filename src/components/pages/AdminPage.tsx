@@ -1,14 +1,18 @@
 import {Table, Input, Button, Space, Tag, Popconfirm, Select} from "antd";
-import {useState} from "react";
+import {useCallback, useState} from "react";
 import {useUsers, useDeleteUser, useBlockUser, useUnlockUser, useUpdateUserRights} from "../../api/api";
 import {SearchOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
-import {Roles, User} from "../../types/types.ts";
+import {Roles} from "../../types/types.ts";
 import type {TableProps} from "antd";
 import {AxiosError} from "axios";
+import {format} from "date-fns";
+import {debounce} from "lodash";
+import {User} from "../../types/users.ts";
 
 const AdminPage: React.FC = () => {
     const [search, setSearch] = useState<string>("");
+    const [debouncedSearch, setDebouncedSearch] = useState<string>("");
     const [sortBy, setSortBy] = useState<string | undefined>(undefined);
     const [sortOrder, setSortOrder] = useState<"asc" | "desc" | undefined>(undefined);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -17,7 +21,7 @@ const AdminPage: React.FC = () => {
 
     const offset = currentPage - 1;
     const {data, isLoading, isError, error, refetch} = useUsers({
-        search,
+        search: debouncedSearch,
         sortBy,
         sortOrder,
         limit: pageSize,
@@ -30,6 +34,18 @@ const AdminPage: React.FC = () => {
     const unlockUser = useUnlockUser();
     const updateUserRights = useUpdateUserRights();
     const navigate = useNavigate();
+
+    const debouncedSetSearch = useCallback(
+        debounce((value: string) => {
+            setDebouncedSearch(value);
+        }, 500),
+        []
+    );
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearch(e.target.value);
+        debouncedSetSearch(e.target.value);
+    };
 
     const handleTableChange: TableProps<User>["onChange"] = (pagination, _filters, sorter) => {
         if (!Array.isArray(sorter)) {
@@ -55,7 +71,13 @@ const AdminPage: React.FC = () => {
                 </div>
             ),
         },
-        {title: "Дата регистрации", dataIndex: "date", key: "date", sorter: true},
+        {
+            title: "Дата регистрации",
+            dataIndex: "date",
+            key: "date",
+            sorter: true,
+            render: (date: string) => format(new Date(date), "dd.MM.yyyy"),
+        },
         {
             title: "Статус",
             dataIndex: "isBlocked",
@@ -77,23 +99,43 @@ const AdminPage: React.FC = () => {
             render: (_: unknown, record: User) => (
                 <Space>
                     <Button onClick={() => navigate(`/admin/users/${record.id}`)}>Перейти к профилю</Button>
-                    {record.isBlocked ? (
-                        <Button onClick={() => unlockUser.mutateAsync(record.id).then(() => refetch())}>Разблокировать</Button>
-                    ) : (
-                        <Button danger
-                                onClick={() => blockUser.mutateAsync(record.id).then(() => refetch())}>Заблокировать</Button>
-                    )}
+                    {
+                        record.isBlocked ? (
+                            <Popconfirm
+                                title="Разблокировать пользователя?"
+                                onConfirm={() => unlockUser.mutateAsync(record.id).then(() => refetch())}
+                                okText="Да"
+                                cancelText="Нет"
+                            >
+                                <Button>Разблокировать</Button>
+                            </Popconfirm>
+                        ) : (
+                            <Popconfirm
+                                title="Заблокировать пользователя?"
+                                onConfirm={() => blockUser.mutateAsync(record.id).then(() => refetch())}
+                                okText="Да"
+                                cancelText="Нет"
+                            >
+                                <Button danger>Заблокировать</Button>
+                            </Popconfirm>
+                        )
+                    }
                     <Popconfirm title="Удалить пользователя?"
                                 onConfirm={() => deleteUser.mutateAsync(record.id).then(() => refetch())}>
                         <Button type="primary" danger>Удалить</Button>
                     </Popconfirm>
                     <Popconfirm
                         title={record.roles?.includes(Roles.ADMIN) ? "Удалить роль администратора?" : "Дать роль администратора?"}
-                        onConfirm={() => updateUserRights.mutateAsync({
-                            id: record.id,
-                            field: "roles",
-                            value: record.roles?.includes(Roles.ADMIN) ? Roles.USER : Roles.ADMIN
-                        }).then(() => refetch())}
+                        onConfirm={() => {
+                            const updatedRoles = record.roles?.includes(Roles.ADMIN)
+                                ? record.roles.filter(role => role !== Roles.ADMIN)
+                                : [...(record.roles || []), Roles.ADMIN];
+
+                            updateUserRights.mutateAsync({
+                                id: record.id,
+                                roles: updatedRoles,
+                            }).then(() => refetch());
+                        }}
                     >
                         <Button danger={record.roles?.includes(Roles.ADMIN)}>
                             {record.roles?.includes(Roles.ADMIN) ? "Забрать роль админа" : "Дать роль админа"}
@@ -123,10 +165,17 @@ const AdminPage: React.FC = () => {
         <div style={{width: "100%", padding: "2rem"}}>
             <h2>Пользователи</h2>
             <Space style={{marginBottom: 16}}>
-                <Input prefix={<SearchOutlined/>} placeholder="Поиск..." onChange={(e) => setSearch(e.target.value)}
-                       style={{width: 300}}/>
-                <Select value={filterStatus === null ? "all" : filterStatus ? "blocked" : "active"}
-                        onChange={(value) => setFilterStatus(value === "all" ? undefined : value === "blocked")}>
+                <Input
+                    prefix={<SearchOutlined/>}
+                    placeholder="Поиск..."
+                    value={search}
+                    onChange={handleSearchChange}
+                    style={{width: 300}}
+                />
+                <Select
+                    value={filterStatus === undefined ? "all" : filterStatus ? "blocked" : "active"}
+                    onChange={(value) => setFilterStatus(value === "all" ? undefined : value === "blocked")}
+                >
                     <Select.Option value="all">Все пользователи</Select.Option>
                     <Select.Option value="blocked">Только заблокированные</Select.Option>
                     <Select.Option value="active">Только активные</Select.Option>

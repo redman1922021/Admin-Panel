@@ -2,7 +2,7 @@ import { Button, Form, Input, message } from "antd";
 import { useProfile, useUpdateProfile } from "../../api/api";
 import styles from "./ProfilePage.module.scss";
 import { useEffect } from "react";
-import {ProfileRequest} from "../../types/types.ts";
+import {ProfileRequest} from "../../types/users.ts";
 
 const ProfilePage: React.FC = () => {
     const { data: profile, isLoading } = useProfile();
@@ -16,8 +16,19 @@ const ProfilePage: React.FC = () => {
     }, [profile, form]);
 
     const onFinish = async (values: ProfileRequest) => {
+        if (!profile) return;
+
+        const changedFields = Object.fromEntries(
+            Object.entries(values).filter(([key, value]) => value !== profile[key as keyof ProfileRequest])
+        );
+
+        if (!Object.keys(changedFields).length) {
+            message.info("Изменений нет");
+            return;
+        }
+
         try {
-            await updateProfile.mutateAsync(values);
+            await updateProfile.mutateAsync(changedFields);
             message.success("Профиль успешно обновлён!");
         } catch (error) {
             message.error("Ошибка обновления профиля.");

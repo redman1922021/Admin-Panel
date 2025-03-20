@@ -18,20 +18,23 @@ const UserProfilePage: React.FC = () => {
     }, [data, form]);
 
     const handleSave = async (values: { username: string; email: string; phoneNumber: string }) => {
+        const updatedFields = Object.fromEntries(
+            Object.entries(values).filter(([key, value]) => value !== data?.[key as keyof typeof data])
+        );
+
+        if (!Object.keys(updatedFields).length) {
+            message.info("Нет изменений для сохранения");
+            setIsEditing(false);
+            return;
+        }
+
         try {
-            await updateUser.mutateAsync({
-                id: Number(id),
-                data: values
-            });
+            await updateUser.mutateAsync({ id: Number(id), data: updatedFields });
             message.success("Данные обновлены");
             setIsEditing(false);
             refetch();
         } catch (error: any) {
-            if (error.response?.status === 400) {
-                message.error("Логин или почта уже используется");
-            } else {
-                message.error("Ошибка обновления данных");
-            }
+            message.error(error.response?.status === 400 ? "Логин или почта уже используется" : "Ошибка обновления данных");
         }
     };
 

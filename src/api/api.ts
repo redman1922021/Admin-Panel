@@ -1,34 +1,29 @@
 import axios from "axios";
-import {
-    Todo,
-    TodoFilter,
-    TodoInfo,
-    MetaResponse,
-    UserRegistration,
-    AuthData,
-    Token, ProfileRequest, Profile, UserFilters, User, UserRequest,
-} from "../types/types.ts";
+import {MetaResponse, Token} from "../types/types.ts";
+import {UserRegistration, AuthData} from "../types/auth.ts";
+import {Todo, TodoFilter, TodoInfo} from "../types/todos.ts";
+import {ProfileRequest, Profile, UserFilters, User, UserRequest} from "../types/users.ts";
 
 const BASE_URL = "https://easydev.club/api/v1";
 
 const todoApi = axios.create({
     baseURL: `${BASE_URL}/todos`,
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type": "application/json"},
 });
 
 const authApi = axios.create({
     baseURL: `${BASE_URL}/auth`,
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type": "application/json"},
 });
 
 const userApi = axios.create({
     baseURL: `${BASE_URL}/user`,
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type": "application/json"},
 });
 
 const adminApi = axios.create({
     baseURL: `${BASE_URL}/admin`,
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type": "application/json"},
 });
 
 const refreshAccessToken = async (): Promise<string | null> => {
@@ -40,7 +35,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
     }
 
     try {
-        const response = await authApi.post<Token>("/refresh", { refreshToken });
+        const response = await authApi.post<Token>("/refresh", {refreshToken});
         localStorage.setItem("accessToken", response.data.accessToken);
         return response.data.accessToken;
     } catch (error) {
@@ -105,6 +100,20 @@ adminApi.interceptors.request.use(async (config) => {
     return config;
 });
 
+adminApi.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        if (error.response?.status === 401) {
+            const newToken = await refreshAccessToken();
+            if (newToken) {
+                error.config.headers.Authorization = `Bearer ${newToken}`;
+                return adminApi.request(error.config);
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 userApi.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -120,12 +129,12 @@ userApi.interceptors.response.use(
 );
 
 export const fetchTodos = async (filter: TodoFilter = TodoFilter.ALL): Promise<MetaResponse<Todo, TodoInfo>> => {
-    const response = await todoApi.get("", { params: { filter } });
+    const response = await todoApi.get("", {params: {filter}});
     return response.data;
 };
 
 export const addTodo = async (title: string): Promise<void> => {
-    await todoApi.post("", { title, isDone: false });
+    await todoApi.post("", {title, isDone: false});
 };
 
 export const deleteTodo = async (id: number): Promise<void> => {
@@ -133,7 +142,7 @@ export const deleteTodo = async (id: number): Promise<void> => {
 };
 
 export const updateTodo = async (id: number, newTitle: string, isDone: boolean): Promise<void> => {
-    await todoApi.put(`/${id}`, { title: newTitle, isDone });
+    await todoApi.put(`/${id}`, {title: newTitle, isDone});
 };
 
 export const registerUser = async (data: UserRegistration): Promise<void> => {
@@ -141,7 +150,7 @@ export const registerUser = async (data: UserRegistration): Promise<void> => {
 };
 
 export const fetchUsers = async (filters?: UserFilters): Promise<MetaResponse<User>> => {
-    const response = await adminApi.get<MetaResponse<User>>("/users", { params: filters });
+    const response = await adminApi.get<MetaResponse<User>>("/users", {params: filters});
     return response.data;
 };
 
@@ -162,12 +171,12 @@ export const blockUser = async (id: number): Promise<void> => {
     await adminApi.post(`/users/${id}/block`);
 };
 
-export const updateUserRights = async (id: number, field: string, value: string): Promise<void> => {
-    await adminApi.post(`/users/${id}/rights`, { field, value });
+export const updateUserRights = async (id: number, roles: string[]): Promise<void> => {
+    await adminApi.post(`/users/${id}/rights`, {roles});
 };
 
 export const unlockUser = async (id: number): Promise<void> => {
-    await adminApi.post(`/users/${id}/unlock`);
+    await adminApi.post(`/users/${id}/unblock`);
 };
 
 export const loginUser = async (data: AuthData): Promise<Token> => {
@@ -183,7 +192,7 @@ export const logoutUser = (): void => {
     window.location.href = "/login";
 };
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {useQuery, useMutation, useQueryClient} from "@tanstack/react-query";
 
 export const useTodos = (filter: TodoFilter) => {
     return useQuery({
@@ -196,7 +205,7 @@ export const useAddTodo = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (title: string) => addTodo(title),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+        onSuccess: () => queryClient.invalidateQueries({queryKey: ["todos"]}),
     });
 };
 
@@ -204,16 +213,16 @@ export const useDeleteTodo = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (id: number) => deleteTodo(id),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+        onSuccess: () => queryClient.invalidateQueries({queryKey: ["todos"]}),
     });
 };
 
 export const useUpdateTodo = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, title, isDone }: { id: number; title: string; isDone: boolean }) =>
+        mutationFn: ({id, title, isDone}: { id: number; title: string; isDone: boolean }) =>
             updateTodo(id, title, isDone),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+        onSuccess: () => queryClient.invalidateQueries({queryKey: ["todos"]}),
     });
 };
 
@@ -251,7 +260,7 @@ export const useUpdateProfile = () => {
     return useMutation({
         mutationFn: (data: ProfileRequest) => updateProfile(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["profile"] });
+            queryClient.invalidateQueries({queryKey: ["profile"]});
         },
     });
 };
@@ -272,7 +281,7 @@ export const useUserById = (id: number) => {
 
 export const useUpdateUser = () => {
     return useMutation({
-        mutationFn: ({ id, data }: { id: number; data: UserRequest }) => updateUser(id, data),
+        mutationFn: ({id, data}: { id: number; data: UserRequest }) => updateUser(id, data),
     });
 };
 
@@ -290,7 +299,7 @@ export const useBlockUser = () => {
 
 export const useUpdateUserRights = () => {
     return useMutation({
-        mutationFn: ({ id, field, value }: { id: number; field: string; value: string }) => updateUserRights(id, field, value),
+        mutationFn: ({id, roles}: { id: number; roles: string[] }) => updateUserRights(id, roles),
     });
 };
 

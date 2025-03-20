@@ -3,7 +3,7 @@ import { useLogin } from "../../api/api";
 import { useNavigate } from "react-router-dom";
 import styles from "./RegistartionLayot.module.scss";
 import {useAuthContext} from "../provider/AuthProvider.tsx";
-import {AuthData} from "../../types/types.ts";
+import {AuthData} from "../../types/auth.ts";
 
 const LoginForm: React.FC = () => {
     const { login } = useAuthContext();

@@ -3,7 +3,7 @@ import {useState} from "react";
 import {useRegister} from "../../api/api";
 import {Link} from "react-router-dom";
 import styles from "./RegistartionLayot.module.scss";
-import {UserRegistration} from "../../types/types.ts";
+import {UserRegistration} from "../../types/auth.ts";
 
 const RegistrationForm: React.FC = () => {
     const mutation = useRegister();
