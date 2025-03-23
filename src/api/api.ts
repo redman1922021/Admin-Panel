@@ -5,6 +5,7 @@ import {Todo, TodoFilter, TodoInfo} from "../types/todos.ts";
 import {ProfileRequest, Profile, UserFilters, User, UserRequest} from "../types/users.ts";
 
 const BASE_URL = "https://easydev.club/api/v1";
+let refreshTokenPromise: Promise<string | null> | null = null;
 
 const todoApi = axios.create({
     baseURL: `${BASE_URL}/todos`,
@@ -27,21 +28,31 @@ const adminApi = axios.create({
 });
 
 const refreshAccessToken = async (): Promise<string | null> => {
-    const refreshToken = localStorage.getItem("refreshToken");
+    if (!refreshTokenPromise) {
+        refreshTokenPromise = (async () => {
+            const refreshToken = localStorage.getItem("refreshToken");
+            if (!refreshToken) {
+                logoutUser();
+                return null;
+            }
 
-    if (!refreshToken) {
-        logoutUser();
-        return null;
+            try {
+                const response = await authApi.post<Token>("/refresh", { refreshToken });
+                localStorage.setItem("accessToken", response.data.accessToken);
+                if (response.data.refreshToken) {
+                    localStorage.setItem("refreshToken", response.data.refreshToken);
+                }
+                return response.data.accessToken;
+            } catch (error) {
+                logoutUser();
+                return null;
+            } finally {
+                refreshTokenPromise = null;
+            }
+        })();
     }
 
-    try {
-        const response = await authApi.post<Token>("/refresh", {refreshToken});
-        localStorage.setItem("accessToken", response.data.accessToken);
-        return response.data.accessToken;
-    } catch (error) {
-        logoutUser();
-        return null;
-    }
+    return refreshTokenPromise;
 };
 
 todoApi.interceptors.request.use(async (config) => {

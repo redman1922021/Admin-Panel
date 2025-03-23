@@ -153,13 +153,6 @@ const AdminPage: React.FC = () => {
             </h2>
         );
     }
-    if (isError && (error as AxiosError)?.response?.status === 401) {
-        return (
-            <h2 style={{color: "red", textAlign: "center", margin: "2rem 0 0 2rem"}}>
-                Токен протух
-            </h2>
-        );
-    }
 
     return (
         <div style={{width: "100%", padding: "2rem"}}>
@@ -174,7 +167,10 @@ const AdminPage: React.FC = () => {
                 />
                 <Select
                     value={filterStatus === undefined ? "all" : filterStatus ? "blocked" : "active"}
-                    onChange={(value) => setFilterStatus(value === "all" ? undefined : value === "blocked")}
+                    onChange={(value) => {
+                        setCurrentPage(1);
+                        setFilterStatus(value === "all" ? undefined : value === "blocked");
+                    }}
                 >
                     <Select.Option value="all">Все пользователи</Select.Option>
                     <Select.Option value="blocked">Только заблокированные</Select.Option>
