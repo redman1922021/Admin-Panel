@@ -14,6 +14,7 @@ import AuthLayout from "./components/provider/AuthLayout.tsx";
 import Error from "./components/Error/Error.tsx";
 import AdminPage from "./components/pages/AdminPage.tsx";
 import UserProfilePage from "./components/pages/UserProfilePage.tsx";
+import AdminLayout from "./components/provider/AdminLayout.tsx";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,8 @@ const Root: React.FC = () => {
                                 <Route element={<MainLayout />}>
                                     <Route path="/" element={<MainPage />} />
                                     <Route path="/profile" element={<ProfilePage />} />
+                                </Route>
+                                <Route element={<AdminLayout />}>
                                     <Route path="/admin" element={<AdminPage />} />
                                     <Route path="/admin/users/:id" element={<UserProfilePage />} />
                                 </Route>

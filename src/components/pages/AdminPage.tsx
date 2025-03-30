@@ -5,7 +5,6 @@ import {SearchOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import {Roles} from "../../types/types.ts";
 import type {TableProps} from "antd";
-import {AxiosError} from "axios";
 import {format} from "date-fns";
 import {debounce} from "lodash";
 import {User} from "../../types/users.ts";

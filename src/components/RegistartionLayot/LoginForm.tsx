@@ -1,4 +1,4 @@
-import { Button, Form, Input } from "antd";
+import {Button, Form, Input, message} from "antd";
 import { useLogin } from "../../api/api";
 import { useNavigate } from "react-router-dom";
 import styles from "./RegistartionLayot.module.scss";
@@ -16,7 +16,7 @@ const LoginForm: React.FC = () => {
             login(data.accessToken);
             navigate("/");
         } catch (error) {
-            console.error("Ошибка авторизации:", error);
+            message.error("Ошибка авторизации: Неверный логин или пароль");
         }
     };
 
