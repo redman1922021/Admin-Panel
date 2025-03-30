@@ -8,6 +8,7 @@ import type {TableProps} from "antd";
 import {format} from "date-fns";
 import {debounce} from "lodash";
 import {User} from "../../types/users.ts";
+import {AxiosError} from "axios";
 
 const AdminPage: React.FC = () => {
     const [search, setSearch] = useState<string>("");
