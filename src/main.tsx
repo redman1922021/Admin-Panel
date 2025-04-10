@@ -12,6 +12,8 @@ import PrivateRoute from "./components/provider/PrivateRoute.tsx";
 import {AuthProvider} from "./components/provider/AuthProvider.tsx";
 import AuthLayout from "./components/provider/AuthLayout.tsx";
 import Error from "./components/Error/Error.tsx";
+import AdminPage from "./components/pages/AdminPage.tsx";
+import UserProfilePage from "./components/pages/UserProfilePage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +28,8 @@ const Root: React.FC = () => {
                                 <Route element={<MainLayout />}>
                                     <Route path="/" element={<MainPage />} />
                                     <Route path="/profile" element={<ProfilePage />} />
+                                    <Route path="/admin" element={<AdminPage />} />
+                                    <Route path="/admin/users/:id" element={<UserProfilePage />} />
                                 </Route>
                             </Route>
                             <Route element={<AuthLayout />}>

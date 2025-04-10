@@ -1,5 +1,5 @@
 import styles from "./Navigate.module.scss";
-import {TodoFilter, TodoInfo} from "../../types/types.ts";
+import {TodoFilter, TodoInfo} from "../../types/todos.ts";
 
 interface ListProps {
     todoInfo: TodoInfo;

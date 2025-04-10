@@ -1,6 +1,6 @@
 import styles from "./List.module.scss";
-import { Todo } from "../../types/types.ts";
 import ListItem from "../ListItem/ListItem.tsx";
+import {Todo} from "../../types/todos.ts";
 
 interface ListProps {
     todos: Todo[];

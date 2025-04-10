@@ -1,11 +1,13 @@
 import { Button, Form, Input, message } from "antd";
-import { useProfile, useUpdateProfile } from "../../api/api";
 import styles from "./ProfilePage.module.scss";
 import { useEffect } from "react";
-import {ProfileRequest} from "../../types/types.ts";
+import {ProfileRequest} from "../../types/users.ts";
+import {useProfile, useUpdateProfile} from "../../hooks/useUser.ts";
+import {Roles} from "../../types/types.ts";
 
 const ProfilePage: React.FC = () => {
     const { data: profile, isLoading } = useProfile();
+    const isAdmin = profile?.roles.includes(Roles.ADMIN);
     const updateProfile = useUpdateProfile();
     const [form] = Form.useForm();
 
@@ -16,8 +18,19 @@ const ProfilePage: React.FC = () => {
     }, [profile, form]);
 
     const onFinish = async (values: ProfileRequest) => {
+        if (!profile) return;
+
+        const changedFields = Object.fromEntries(
+            Object.entries(values).filter(([key, value]) => value !== profile[key as keyof ProfileRequest])
+        );
+
+        if (!Object.keys(changedFields).length) {
+            message.info("Изменений нет");
+            return;
+        }
+
         try {
-            await updateProfile.mutateAsync(values);
+            await updateProfile.mutateAsync(changedFields);
             message.success("Профиль успешно обновлён!");
         } catch (error) {
             message.error("Ошибка обновления профиля.");
@@ -25,6 +38,7 @@ const ProfilePage: React.FC = () => {
     };
 
     if (isLoading) return <p>Загрузка...</p>;
+    if (isAdmin) return <p>Не можешь поменять</p>;
 
     return (
         <div className={styles.container}>

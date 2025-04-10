@@ -1,8 +1,8 @@
 import { useState } from "react";
 import styles from "./ListItem.module.scss";
-import { Todo } from "../../types/types.ts";
 import { Button, Input, Form, Checkbox, message } from "antd";
-import { useDeleteTodo, useUpdateTodo } from "../../api/api.ts";
+import {Todo} from "../../types/todos.ts";
+import {useUpdateTodo,useDeleteTodo} from "../../hooks/useTodos.ts";
 
 interface ListItemProps {
     todo: Todo;
