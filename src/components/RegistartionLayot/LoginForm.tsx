@@ -1,9 +1,9 @@
 import {Button, Form, Input, message} from "antd";
-import { useLogin } from "../../api/api";
 import { useNavigate } from "react-router-dom";
 import styles from "./RegistartionLayot.module.scss";
 import {useAuthContext} from "../provider/AuthProvider.tsx";
 import {AuthData} from "../../types/auth.ts";
+import {useLogin} from "../../hooks/useAuths.ts";
 
 const LoginForm: React.FC = () => {
     const { login } = useAuthContext();

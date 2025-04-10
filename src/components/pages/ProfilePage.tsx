@@ -1,11 +1,13 @@
 import { Button, Form, Input, message } from "antd";
-import { useProfile, useUpdateProfile } from "../../api/api";
 import styles from "./ProfilePage.module.scss";
 import { useEffect } from "react";
 import {ProfileRequest} from "../../types/users.ts";
+import {useProfile, useUpdateProfile} from "../../hooks/useUser.ts";
+import {Roles} from "../../types/types.ts";
 
 const ProfilePage: React.FC = () => {
     const { data: profile, isLoading } = useProfile();
+    const isAdmin = profile?.roles.includes(Roles.ADMIN);
     const updateProfile = useUpdateProfile();
     const [form] = Form.useForm();
 
@@ -36,6 +38,7 @@ const ProfilePage: React.FC = () => {
     };
 
     if (isLoading) return <p>Загрузка...</p>;
+    if (isAdmin) return <p>Не можешь поменять</p>;
 
     return (
         <div className={styles.container}>

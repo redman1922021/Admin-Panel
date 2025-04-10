@@ -3,8 +3,8 @@ import styles from "./Main.module.scss";
 import Header from "../Header/Header.tsx";
 import List from "../List/List.tsx";
 import Navigate from "../Navigate/Navigate.tsx";
-import {useTodos} from "../../api/api.ts";
 import {TodoFilter, TodoInfo} from "../../types/todos.ts";
+import {useTodos} from "../../hooks/useTodos.ts";
 
 const todoInfoDefault: TodoInfo = {
     all: 0,

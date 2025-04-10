@@ -1,6 +1,5 @@
 import {Table, Input, Button, Space, Tag, Popconfirm, Select} from "antd";
 import {useCallback, useState} from "react";
-import {useUsers, useDeleteUser, useBlockUser, useUnlockUser, useUpdateUserRights} from "../../api/api";
 import {SearchOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import {Roles} from "../../types/types.ts";
@@ -9,11 +8,12 @@ import {format} from "date-fns";
 import {debounce} from "lodash";
 import {User} from "../../types/users.ts";
 import {AxiosError} from "axios";
+import {useBlockUser, useDeleteUser, useUsers, useUnlockUser, useUpdateUserRights} from "../../hooks/useAdmin.ts";
 
 const AdminPage: React.FC = () => {
     const [search, setSearch] = useState<string>("");
     const [debouncedSearch, setDebouncedSearch] = useState<string>("");
-    const [sortBy, setSortBy] = useState<string | undefined>(undefined);
+    const [sortBy, setSortBy] = useState<string>('');
     const [sortOrder, setSortOrder] = useState<"asc" | "desc" | undefined>(undefined);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [pageSize, setPageSize] = useState<number>(20);

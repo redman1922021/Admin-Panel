@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Input, Button, Form, message } from "antd";
-import { useUserById, useUpdateUser } from "../../api/api";
+import {useUserById, useUpdateUser} from "../../hooks/useAdmin.ts";
 
 const UserProfilePage: React.FC = () => {
     const { id } = useParams<{ id: string }>();

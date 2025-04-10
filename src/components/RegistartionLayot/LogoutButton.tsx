@@ -11,7 +11,7 @@ const LogoutButton = () => {
         navigate("/login");
     };
 
-    return <Button onClick={handleLogout}>Выйти</Button>;
+    return <Button style={{ width: "100%", height: "100%" }} onClick={handleLogout}>Выйти</Button>;
 };
 
 export default LogoutButton;
